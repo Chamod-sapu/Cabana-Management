@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Booking Conflict Alert</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<div class="px-4 md:px-20 lg:px-40 flex flex-1 justify-center py-5">
+<div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+<!-- Header -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 px-4 py-4">
+<div class="flex items-center gap-4 text-slate-900 dark:text-slate-100">
+<div class="size-6 flex items-center justify-center bg-primary/10 text-primary rounded-lg">
+<span class="material-symbols-outlined text-lg">event_busy</span>
+</div>
+<h2 class="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight">Booking Manager</h2>
+</div>
+<button class="flex size-10 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100">
+<span class="material-symbols-outlined">close</span>
+</button>
+</header>
+<!-- Conflict Alert Header -->
+<div class="flex flex-wrap justify-between gap-4 p-4 mt-4 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20 rounded-xl">
+<div class="flex min-w-72 flex-col gap-2">
+<div class="flex items-center gap-2 text-red-600 dark:text-red-400">
+<span class="material-symbols-outlined">warning</span>
+<p class="tracking-tight text-2xl font-bold leading-tight">Conflict Detected</p>
+</div>
+<p class="text-slate-600 dark:text-slate-400 text-sm font-normal leading-normal">A new booking request overlaps with an existing reservation for the same resource. Please resolve the schedule overlap to proceed.</p>
+</div>
+</div>
+<!-- Comparison Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+<!-- Proposed Booking -->
+<div class="flex flex-col gap-4">
+<div class="flex items-center gap-2 px-1">
+<span class="material-symbols-outlined text-primary text-sm">add_circle</span>
+<h3 class="text-slate-900 dark:text-slate-100 text-sm font-bold uppercase tracking-wider">Proposed Booking</h3>
+</div>
+<div class="flex flex-col overflow-hidden rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="w-full bg-center bg-no-repeat aspect-video bg-cover" data-alt="Luxury poolside cabana with white curtains" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD-p95F7xTiAgUMbA10_JHdBvni8e9gK7b65YE6eaItMd20KgLb2uq9ovZK3fkG7dNHn2nhfRv5nI0_npcAYrjDfDrurX1n7_qxU94LfRFyF8U0OojTJiqmHOQV6Jfi7A5XcJU3WCa5Z5W_rVwR7AU30rF3g5gxa5KC32foX9RTqmiy8q15EW-F1sKkO6tMn5s0SrqWZG2l5I1I_CMV-2cZ5hE2SVpGTkeiUx8iOfEutmsCq9mEuMbvoCw1nTiDV7Pin_aBfwE0nUY");'></div>
+<div class="p-5 flex flex-col gap-3">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight">Cabana #4 - Premium</p>
+<p class="text-primary text-sm font-medium">New Request</p>
+</div>
+<span class="px-2 py-1 rounded bg-primary/10 text-primary text-xs font-bold uppercase tracking-tighter">Pending</span>
+</div>
+<div class="space-y-2 py-2 border-t border-slate-100 dark:border-slate-800">
+<div class="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-sm">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+<span>Friday, Oct 25, 2023</span>
+</div>
+<div class="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-sm font-semibold">
+<span class="material-symbols-outlined text-[18px]">schedule</span>
+<span>2:00 PM - 5:00 PM</span>
+</div>
+<div class="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-sm">
+<span class="material-symbols-outlined text-[18px]">person</span>
+<span>Client: Sarah Jenkins</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Existing Booking -->
+<div class="flex flex-col gap-4">
+<div class="flex items-center gap-2 px-1">
+<span class="material-symbols-outlined text-red-500 text-sm">event_busy</span>
+<h3 class="text-slate-900 dark:text-slate-100 text-sm font-bold uppercase tracking-wider">Existing Booking</h3>
+</div>
+<div class="flex flex-col overflow-hidden rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm opacity-90">
+<div class="w-full bg-center bg-no-repeat aspect-video bg-cover grayscale-[40%]" data-alt="Same luxury poolside cabana" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBeHpFSqwwOhzsFmdi1kKe8GFeTJ6VQV4Kt9tannve7Pa2ySVa4MaXOwpe0TsLghSHEcwFwKlnzP0BTnXzAwQRJ1xQ3-YCf6i3A-1kjma6BK8V-lBd8u1Pu6HsnYYbQInnuzkNI5xa6YmYXTTvJMFaoXXQ7F8VW4rSKdJmEt6URnq-kcfvSd2-hY2rRGABBCIKFmwZYAcxKxvUs0NfCOraZ-psTn-pUbvYan3gSqcuok4_0B8fiJYVH47KWz5QB-VuM0U0k5cvIlzk");'></div>
+<div class="p-5 flex flex-col gap-3">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight">Cabana #4 - Premium</p>
+<p class="text-red-500 text-sm font-medium">Overlapping Schedule</p>
+</div>
+<span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 text-xs font-bold uppercase tracking-tighter">Confirmed</span>
+</div>
+<div class="space-y-2 py-2 border-t border-slate-100 dark:border-slate-800">
+<div class="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-sm">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+<span>Friday, Oct 25, 2023</span>
+</div>
+<div class="flex items-center gap-2 text-red-500 text-sm font-bold">
+<span class="material-symbols-outlined text-[18px]">schedule</span>
+<span>1:00 PM - 3:30 PM</span>
+</div>
+<div class="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-sm">
+<span class="material-symbols-outlined text-[18px]">person</span>
+<span>Client: Michael Rossi</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Resolution Recommendations -->
+<div class="mt-10 p-6 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<h3 class="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight mb-4">Recommended Resolutions</h3>
+<div class="space-y-3">
+<!-- Option 1 -->
+<div class="flex items-center justify-between p-4 rounded-lg border border-slate-100 dark:border-slate-800 hover:border-primary/50 transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="size-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined">swap_horiz</span>
+</div>
+<div>
+<p class="text-slate-900 dark:text-slate-100 font-bold">Switch Cabana</p>
+<p class="text-slate-500 dark:text-slate-400 text-sm">Move "Sarah Jenkins" to Cabana #5 (Available)</p>
+</div>
+</div>
+<button class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-bold">Apply</button>
+</div>
+<!-- Option 2 -->
+<div class="flex items-center justify-between p-4 rounded-lg border border-slate-100 dark:border-slate-800 hover:border-primary/50 transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="size-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined">history</span>
+</div>
+<div>
+<p class="text-slate-900 dark:text-slate-100 font-bold">Adjust Timing</p>
+<p class="text-slate-500 dark:text-slate-400 text-sm">Move start time to 3:45 PM (After Michael Rossi)</p>
+</div>
+</div>
+<button class="bg-primary/10 text-primary hover:bg-primary hover:text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors">Apply</button>
+</div>
+<!-- Option 3 -->
+<div class="flex items-center justify-between p-4 rounded-lg border border-slate-100 dark:border-slate-800 hover:border-red-500/50 transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="size-10 rounded-full bg-red-100 text-red-500 flex items-center justify-center">
+<span class="material-symbols-outlined">block</span>
+</div>
+<div>
+<p class="text-slate-900 dark:text-slate-100 font-bold">Decline Request</p>
+<p class="text-slate-500 dark:text-slate-400 text-sm">Cancel the proposed booking and notify Sarah</p>
+</div>
+</div>
+<button class="bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2 rounded-lg text-sm font-bold">Manage</button>
+</div>
+</div>
+</div>
+<!-- Footer Actions -->
+<div class="flex items-center justify-end gap-3 mt-8 pb-10">
+<button class="px-6 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                        Ignore Conflict
+                    </button>
+<button class="px-8 py-2.5 rounded-lg bg-primary text-white font-bold shadow-lg shadow-primary/20 hover:brightness-110 transition-all">
+                        View Schedule Map
+                    </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body></html>

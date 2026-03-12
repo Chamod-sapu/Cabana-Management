@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Booking Management - Light Mode</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-size: 24px; vertical-align: middle; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+<div class="flex h-screen overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 border-r border-slate-200 bg-white dark:bg-slate-900 flex flex-col">
+<div class="p-6 flex items-center gap-3 border-b border-slate-100">
+<div class="size-10 rounded-full bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined">beach_access</span>
+</div>
+<div>
+<h1 class="text-sm font-bold leading-none">Cabana Resort</h1>
+<p class="text-xs text-slate-500 mt-1">Management Portal</p>
+</div>
+</div>
+<nav class="flex-1 overflow-y-auto p-4 space-y-2">
+<div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-slate-500">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 text-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined">calendar_month</span>
+<span class="text-sm font-semibold">Bookings</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-slate-500">deck</span>
+<span class="text-sm font-medium">Cabanas</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-slate-500">group</span>
+<span class="text-sm font-medium">Customers</span>
+</div>
+<div class="pt-6 pb-2">
+<p class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Cabana Filters</p>
+</div>
+<div class="space-y-1">
+<label class="flex items-center gap-3 px-3 py-2 cursor-pointer group">
+<input checked="" class="rounded border-slate-300 text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
+<span class="text-sm font-medium text-slate-700">Cabana 01 (VIP)</span>
+</label>
+<label class="flex items-center gap-3 px-3 py-2 cursor-pointer">
+<input checked="" class="rounded border-slate-300 text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
+<span class="text-sm font-medium text-slate-700">Cabana 02 (Poolside)</span>
+</label>
+<label class="flex items-center gap-3 px-3 py-2 cursor-pointer">
+<input checked="" class="rounded border-slate-300 text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
+<span class="text-sm font-medium text-slate-700">Cabana 03 (Standard)</span>
+</label>
+<label class="flex items-center gap-3 px-3 py-2 cursor-pointer">
+<input class="rounded border-slate-300 text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
+<span class="text-sm font-medium text-slate-700">Cabana 04 (Lounge)</span>
+</label>
+</div>
+</nav>
+<div class="p-4 border-t border-slate-100">
+<div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-slate-500">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col overflow-hidden bg-background-light">
+<!-- Header -->
+<header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">event_note</span>
+<h2 class="text-lg font-bold tracking-tight">Booking Management</h2>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
+<input class="pl-10 pr-4 py-2 bg-slate-100 border-none rounded-lg text-sm focus:ring-2 focus:ring-primary w-64" placeholder="Search bookings..." type="text"/>
+</div>
+<button class="p-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border-2 border-white"></span>
+</button>
+<div class="h-8 w-[1px] bg-slate-200 mx-2"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-xs font-bold leading-none">Alex Rivera</p>
+<p class="text-[10px] text-slate-500 uppercase mt-1">Admin</p>
+</div>
+<div class="size-9 rounded-full bg-slate-200 bg-cover bg-center" data-alt="User profile avatar of Alex Rivera" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD-bIGrVBXZQ7nIKgU2ESRQvaOXX1CRhDMGXGX7IQPT11RUyp-vZnyG7Gs56qr7X7e3pA2pBqT3WvHPgESjW-fV6BzoXH3F_hFqN-hddOXdUXx9m9sJqokvDYTGNZM0T5gBRJHSJFkAE01cve4bB6k32wO_T3eCpGG6ZRfrunAzLOEoCL7BBcDTwvTlPL2r5SGyVvBPmUtgzYQcpLTIA7xURRU4bwIfwMTZGF80GsXI2fRM6k6jRGtorMUmmT4TvfrNGEjC4_y41oo')"></div>
+</div>
+</div>
+</header>
+<!-- Content Area -->
+<div class="flex-1 overflow-y-auto p-8 space-y-8">
+<!-- KPIs -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+<div>
+<p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Today's Bookings</p>
+<h3 class="text-3xl font-black mt-2">24</h3>
+</div>
+<div class="flex items-center gap-1 mt-4 text-emerald-600 text-sm font-semibold">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+<span>+12% from yesterday</span>
+</div>
+</div>
+<div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+<div>
+<p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Availability</p>
+<h3 class="text-3xl font-black mt-2">12 <span class="text-lg font-medium text-slate-400">Cabanas</span></h3>
+</div>
+<div class="flex items-center gap-1 mt-4 text-rose-600 text-sm font-semibold">
+<span class="material-symbols-outlined text-sm">trending_down</span>
+<span>-5% seasonal trend</span>
+</div>
+</div>
+<div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+<div>
+<p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Occupancy Rate</p>
+<h3 class="text-3xl font-black mt-2">68%</h3>
+</div>
+<div class="flex items-center gap-1 mt-4 text-emerald-600 text-sm font-semibold">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+<span>+4% vs last week</span>
+</div>
+</div>
+</div>
+<!-- Calendar Header -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+<div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+<div class="flex items-center gap-4">
+<h3 class="text-base font-bold">November 2023</h3>
+<div class="flex border border-slate-200 rounded-lg overflow-hidden">
+<button class="p-1.5 hover:bg-white text-slate-500 transition-colors"><span class="material-symbols-outlined">chevron_left</span></button>
+<button class="px-3 text-xs font-bold bg-white border-x border-slate-200 transition-colors hover:text-primary">Today</button>
+<button class="p-1.5 hover:bg-white text-slate-500 transition-colors"><span class="material-symbols-outlined">chevron_right</span></button>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex bg-slate-100 p-1 rounded-lg">
+<button class="px-4 py-1.5 text-xs font-bold rounded-md bg-white shadow-sm text-primary">Month</button>
+<button class="px-4 py-1.5 text-xs font-bold rounded-md text-slate-500 hover:text-slate-700">Week</button>
+<button class="px-4 py-1.5 text-xs font-bold rounded-md text-slate-500 hover:text-slate-700">Day</button>
+</div>
+<button class="ml-2 bg-primary text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">add</span> New Booking
+                        </button>
+</div>
+</div>
+<!-- Calendar Body -->
+<div class="grid grid-cols-7 border-b border-slate-100">
+<div class="py-3 text-center text-[10px] font-bold text-slate-400 uppercase">Sun</div>
+<div class="py-3 text-center text-[10px] font-bold text-slate-400 uppercase">Mon</div>
+<div class="py-3 text-center text-[10px] font-bold text-slate-400 uppercase">Tue</div>
+<div class="py-3 text-center text-[10px] font-bold text-slate-400 uppercase">Wed</div>
+<div class="py-3 text-center text-[10px] font-bold text-slate-400 uppercase">Thu</div>
+<div class="py-3 text-center text-[10px] font-bold text-slate-400 uppercase">Fri</div>
+<div class="py-3 text-center text-[10px] font-bold text-slate-400 uppercase">Sat</div>
+</div>
+<div class="grid grid-cols-7 grid-rows-5 h-[600px]">
+<!-- Sample Days with Bookings -->
+<!-- Week 1 -->
+<div class="border-r border-b border-slate-100 p-2 text-slate-300 text-xs font-medium bg-slate-50/50">29</div>
+<div class="border-r border-b border-slate-100 p-2 text-slate-300 text-xs font-medium bg-slate-50/50">30</div>
+<div class="border-r border-b border-slate-100 p-2 text-slate-300 text-xs font-medium bg-slate-50/50">31</div>
+<div class="border-r border-b border-slate-100 p-2 text-slate-800 text-xs font-bold">1</div>
+<div class="border-r border-b border-slate-100 p-2 text-slate-800 text-xs font-bold">2
+                        <div class="mt-1 space-y-1">
+<div class="bg-blue-100 text-blue-700 text-[10px] px-2 py-1 rounded border-l-4 border-blue-500 font-bold truncate">VIP - Jones Family</div>
+</div>
+</div>
+<div class="border-r border-b border-slate-100 p-2 text-slate-800 text-xs font-bold">3
+                        <div class="mt-1 space-y-1">
+<div class="bg-emerald-100 text-emerald-700 text-[10px] px-2 py-1 rounded border-l-4 border-emerald-500 font-bold truncate">Cabana 02 - Sarah W.</div>
+</div>
+</div>
+<div class="border-b border-slate-100 p-2 text-slate-800 text-xs font-bold">4</div>
+<!-- Week 2 -->
+<div class="border-r border-b border-slate-100 p-2 text-slate-800 text-xs font-bold">5</div>
+<div class="border-r border-b border-slate-100 p-2 text-slate-800 text-xs font-bold">6</div>
+<div class="border-r border-b border-slate-100 p-2 text-slate-800 text-xs font-bold">7
+                         <div class="mt-1 space-y-1">
+<div class="bg-amber-100 text-amber-700 text-[10px] px-2 py-1 rounded border-l-4 border-amber-500 font-bold truncate">Standard - Room 402</div>
+<div class="bg-blue-100 text-blue-700 text-[10px] px-2 py-1 rounded border-l-4 border-blue-500 font-bold truncate">VIP - Corporate Event</div>
+</div>
+</div>
+<div class="border-r border-b border-slate-100 p-2 text-slate-800 text-xs font-bold">8</div>
+<div class="border-r border-b border-slate-100 p-2 text-slate-800 text-xs font-bold bg-primary/5">9
+                        <div class="mt-1 space-y-1">
+<div class="bg-primary text-white text-[10px] px-2 py-1 rounded shadow-sm font-bold truncate">Cabana 03 - Maintenance</div>
+</div>
+</div>
+<div class="border-r border-b border-slate-100 p-2 text-slate-800 text-xs font-bold">10</div>
+<div class="border-b border-slate-100 p-2 text-slate-800 text-xs font-bold">11</div>
+<!-- Row 3 -->
+<div class="border-r border-b border-slate-100 p-2 text-slate-800 text-xs font-bold">12</div>
+<div class="border-r border-b border-slate-100 p-2 text-slate-800 text-xs font-bold">13</div>
+<div class="border-r border-b border-slate-100 p-2 text-slate-800 text-xs font-bold">14</div>
+<div class="border-r border-b border-slate-100 p-2 text-slate-800 text-xs font-bold">15</div>
+<div class="border-r border-b border-slate-100 p-2 text-slate-800 text-xs font-bold">16</div>
+<div class="border-r border-b border-slate-100 p-2 text-slate-800 text-xs font-bold">17</div>
+<div class="border-b border-slate-100 p-2 text-slate-800 text-xs font-bold">18</div>
+<!-- Row 4 -->
+<div class="border-r border-b border-slate-100 p-2 text-slate-800 text-xs font-bold">19</div>
+<div class="border-r border-b border-slate-100 p-2 text-slate-800 text-xs font-bold">20</div>
+<div class="border-r border-b border-slate-100 p-2 text-slate-800 text-xs font-bold">21</div>
+<div class="border-r border-b border-slate-100 p-2 text-slate-800 text-xs font-bold">22</div>
+<div class="border-r border-b border-slate-100 p-2 text-slate-800 text-xs font-bold">23</div>
+<div class="border-r border-b border-slate-100 p-2 text-slate-800 text-xs font-bold">24</div>
+<div class="border-b border-slate-100 p-2 text-slate-800 text-xs font-bold">25</div>
+<!-- Row 5 -->
+<div class="border-r border-slate-100 p-2 text-slate-800 text-xs font-bold">26</div>
+<div class="border-r border-slate-100 p-2 text-slate-800 text-xs font-bold">27</div>
+<div class="border-r border-slate-100 p-2 text-slate-800 text-xs font-bold">28</div>
+<div class="border-r border-slate-100 p-2 text-slate-800 text-xs font-bold">29</div>
+<div class="border-r border-slate-100 p-2 text-slate-800 text-xs font-bold">30</div>
+<div class="border-r border-slate-100 p-2 text-slate-300 text-xs font-medium bg-slate-50/50">1</div>
+<div class="p-2 text-slate-300 text-xs font-medium bg-slate-50/50">2</div>
+</div>
+</div>
+<!-- List View Snippet (Optional context) -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+<div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+<h3 class="text-base font-bold">Upcoming Checked-ins</h3>
+<button class="text-primary text-xs font-bold hover:underline">View All List</button>
+</div>
+<div class="divide-y divide-slate-100">
+<div class="px-6 py-4 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="size-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs">C1</div>
+<div>
+<p class="text-sm font-bold">Marcus Thorne</p>
+<p class="text-xs text-slate-500">Cabana 01 • 10:00 AM - 04:00 PM</p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="px-2.5 py-1 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-full">Pending Payment</span>
+<button class="material-symbols-outlined text-slate-400 hover:text-slate-600">more_vert</button>
+</div>
+</div>
+<div class="px-6 py-4 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="size-10 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold text-xs">C2</div>
+<div>
+<p class="text-sm font-bold">Elena Rodriguez</p>
+<p class="text-xs text-slate-500">Cabana 02 • 11:30 AM - 05:30 PM</p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="px-2.5 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full">Confirmed</span>
+<button class="material-symbols-outlined text-slate-400 hover:text-slate-600">more_vert</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>
