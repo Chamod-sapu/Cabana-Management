@@ -409,8 +409,9 @@ function Dashboard() {
           supabase
             .from("bookings")
             .select("*, guests(full_name), cabanas(name)")
-            .gte("start_time", todayIso)
-            .lt("start_time", tomorrowIso),
+            .eq("status", "CONFIRMED")
+            .lt("start_time", tomorrowIso)
+            .gte("end_time", todayIso),
           supabase.from("activity_logs").select("*").order("created_at", { ascending: false }).limit(3),
           supabase.from("invoices").select("*").gte("created_at", todayIso),
           supabase.from("cabanas").select("*").eq("is_active", true),
@@ -419,11 +420,25 @@ function Dashboard() {
         // Revenue Today
         const revenue = invoicesData?.reduce((sum, inv) => sum + Number(inv.total_amount), 0) || 0;
         
+        // Calculate correctly available cabanas RIGHT NOW
+        const now = new Date();
+        const activeCabanas = cabanasData?.filter(c => c.is_active) || [];
+        const occupiedCabanaIds = new Set(
+          (bookingsData || [])
+            .filter((b) => {
+              const start = new Date(b.start_time);
+              const end = new Date(b.end_time);
+              return now >= start && now <= end;
+            })
+            .map((b) => b.cabana_id)
+        );
+        const realAvailableCount = activeCabanas.filter(c => !occupiedCabanaIds.has(c.id)).length;
+
         setStats({
           guests: guestsCount ?? 0,
           bookingsToday: bookingsData?.length ?? 0,
           revenueToday: revenue,
-          availableCabanas: cabanasData?.length ?? 0,
+          availableCabanas: realAvailableCount,
         });
 
         setBilling({
@@ -475,8 +490,18 @@ function Dashboard() {
             bookings: cabanaBookings.map(b => {
               const start = new Date(b.start_time);
               const end = new Date(b.end_time);
-              const startHour = start.getHours() + start.getMinutes() / 60;
-              const endHour = end.getHours() + end.getMinutes() / 60;
+              
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              const tomorrow = new Date(today);
+              tomorrow.setDate(tomorrow.getDate() + 1);
+
+              let startHour = start.getHours() + start.getMinutes() / 60;
+              let endHour = end.getHours() + end.getMinutes() / 60;
+
+              // Clamp to timeline (08:00 - 20:00) if booking spans multiple days
+              if (start < today) startHour = 8;
+              if (end > tomorrow || (end.getTime() === tomorrow.getTime() && endHour === 0)) endHour = 20;
               
               return {
                 guest: b.guests?.full_name || "Guest",

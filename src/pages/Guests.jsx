@@ -29,7 +29,9 @@ import {
   Hotel,
   TrendingUp,
   CalendarDays,
+  Trash2,
 } from "lucide-react";
+import ConfirmModal from "../components/ConfirmModal.jsx";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const PAGE_SIZE = 10;
@@ -83,8 +85,16 @@ function calcTotalFromBooking(booking) {
   const totalHours = ms / (1000 * 60 * 60);
   const days = Math.floor(totalHours / 24);
   const hours = Math.round(totalHours % 24);
-  let total = days * dayRate + hours * hourRate;
-  if (days === 0 && hours === 0) total = hourRate;
+  
+  let total = 0;
+  if (booking.rate_type === "HOURLY") {
+    total = Math.max(1, Math.ceil(totalHours)) * hourRate;
+  } else {
+    // Default DAILY
+    total = days * dayRate + (hours > 0 ? dayRate : 0); // Round up to full day if there are leftover hours
+    if (days === 0 && hours === 0) total = dayRate; // Min 1 day
+  }
+  
   return total * 1.1; // Including 10% service tax
 }
 
@@ -136,6 +146,17 @@ function RegisterModal({ open, onClose, onSave, saving }) {
     mobile: "",
     address: "",
   });
+  useEffect(() => {
+    if (open) {
+      setForm({
+        full_name: "",
+        nic: "",
+        country: "",
+        mobile: "",
+        address: "",
+      });
+    }
+  }, [open]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -253,8 +274,260 @@ function RegisterModal({ open, onClose, onSave, saving }) {
   );
 }
 
+// ─── Edit Guest Modal ─────────────────────────────────────────────────────────
+function EditModal({ open, guest, onClose, onSave, saving }) {
+  const [form, setForm] = useState({
+    full_name: "",
+    nic: "",
+    country: "",
+    mobile: "",
+    address: "",
+  });
+
+  useEffect(() => {
+    if (open && guest) {
+      setForm({
+        full_name: guest.full_name || "",
+        nic: guest.nic || "",
+        country: guest.country || "",
+        mobile: guest.mobile || "",
+        address: guest.address || "",
+      });
+    }
+  }, [open, guest]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!form.full_name.trim()) return;
+    onSave(form);
+  };
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-center gap-2">
+            <Edit size={18} className="text-primary" />
+            <h2 className="text-base font-bold text-slate-900 dark:text-white">Edit Guest Profile</h2>
+          </div>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            <X size={16} className="text-slate-400" />
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="sm:col-span-2">
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Full Name *</label>
+              <input type="text" required value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/40 text-slate-900 dark:text-white" />
+            </div>
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">NIC / Passport</label>
+              <input type="text" value={form.nic} onChange={(e) => setForm({ ...form, nic: e.target.value })} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/40 text-slate-900 dark:text-white" />
+            </div>
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Country</label>
+              <input type="text" value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/40 text-slate-900 dark:text-white" />
+            </div>
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Mobile</label>
+              <input type="text" value={form.mobile} onChange={(e) => setForm({ ...form, mobile: e.target.value })} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/40 text-slate-900 dark:text-white" />
+            </div>
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Address</label>
+              <input type="text" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/40 text-slate-900 dark:text-white" />
+            </div>
+          </div>
+          <div className="flex justify-end gap-3 pt-2">
+            <button type="button" onClick={onClose} className="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">Cancel</button>
+            <button type="submit" disabled={saving} className="px-6 py-2.5 rounded-xl bg-primary text-white text-sm font-bold shadow hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center gap-2">
+              {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+              {saving ? "Saving..." : "Save Changes"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ─── Check-In Modal ──────────────────────────────────────────────────────────
+function CheckInModal({ open, guest, cabanas, bookings, onClose, onSave, saving }) {
+  const [form, setForm] = useState({
+    cabana_id: "",
+    start_time: "",
+    end_time: "",
+  });
+
+  useEffect(() => {
+    if (open) {
+      const now = new Date();
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      // Default check-in: Today at 2 PM
+      const start = new Date(now);
+      start.setHours(14, 0, 0, 0);
+      
+      // Default check-out: Tomorrow at 11 AM
+      const end = new Date(tomorrow);
+      end.setHours(11, 0, 0, 0);
+
+      setForm({
+        cabana_id: cabanas[0]?.id?.toString() || "",
+        rate_type: "DAILY",
+        start_time: now.toISOString().slice(0, 16),
+        end_time: end.toISOString().slice(0, 16),
+      });
+    }
+  }, [open, cabanas]);
+
+  const setDuration = (days, hours = 0) => {
+    const start = new Date(form.start_time);
+    const end = new Date(start);
+    if (days) end.setDate(end.getDate() + days);
+    if (hours) end.setHours(end.getHours() + hours);
+    setForm({ ...form, end_time: end.toISOString().slice(0, 16) });
+  };
+
+  const availableCabanas = useMemo(() => {
+    if (!form.start_time || !form.end_time) return cabanas;
+    const start = new Date(form.start_time);
+    const end = new Date(form.end_time);
+
+    return cabanas.filter((c) => {
+      const isBooked = (bookings || []).some((b) => {
+        if (b.status !== "CONFIRMED" || b.cabana_id !== c.id) return false;
+        const bStart = new Date(b.start_time);
+        const bEnd = new Date(b.end_time);
+        return start < bEnd && end > bStart;
+      });
+      return !isBooked;
+    });
+  }, [form.start_time, form.end_time, cabanas, bookings]);
+
+  // Adjust selected cabana if it becomes unavailable
+  useEffect(() => {
+    if (form.cabana_id && !availableCabanas.find((c) => c.id.toString() === form.cabana_id.toString())) {
+      setForm((prev) => ({ ...prev, cabana_id: availableCabanas[0]?.id?.toString() || "" }));
+    }
+  }, [availableCabanas]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!form.cabana_id || !form.start_time || !form.end_time) return;
+    onSave(form);
+  };
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-center gap-2">
+            <LogIn size={18} className="text-primary" />
+            <h2 className="text-base font-bold text-slate-900 dark:text-white">Check-In Guest: {guest?.full_name}</h2>
+          </div>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            <X size={16} className="text-slate-400" />
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5 flex justify-between">
+                <span>Select Cabana</span>
+                <span className="text-[9px] text-emerald-500">{availableCabanas.length} Available</span>
+              </label>
+              <select 
+                value={form.cabana_id} 
+                onChange={(e) => setForm({ ...form, cabana_id: e.target.value })}
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/40 text-slate-900 dark:text-white"
+              >
+                {availableCabanas.length === 0 && <option value="">No cabanas available</option>}
+                {availableCabanas.length > 0 && <option value="">Choose a cabana...</option>}
+                {availableCabanas.map(c => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Rate Type</label>
+              <select 
+                value={form.rate_type} 
+                onChange={(e) => setForm({ ...form, rate_type: e.target.value })}
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/40 text-slate-900 dark:text-white font-bold"
+              >
+                <option value="DAILY">DAILY RATE</option>
+                <option value="HOURLY">HOURLY RATE</option>
+              </select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5 flex items-center justify-between">
+                Check-In Time
+                <button type="button" onClick={() => setForm({...form, start_time: new Date().toISOString().slice(0, 16)})} className="text-[10px] text-primary hover:underline font-bold">SET NOW</button>
+              </label>
+              <input 
+                type="datetime-local" 
+                value={form.start_time} 
+                onChange={(e) => setForm({ ...form, start_time: e.target.value })}
+                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/40 text-slate-900 dark:text-white"
+              />
+            </div>
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5 flex items-center justify-between">
+                Check-Out Time
+              </label>
+              <input 
+                type="datetime-local" 
+                value={form.end_time} 
+                onChange={(e) => setForm({ ...form, end_time: e.target.value })}
+                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/40 text-slate-900 dark:text-white"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Duration Presets</label>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { label: "1 HR", d: 0, h: 1 },
+                { label: "4 HR", d: 0, h: 4 },
+                { label: "1 DAY", d: 1, h: 0 },
+                { label: "2 DAYS", d: 2, h: 0 },
+                { label: "3 DAYS", d: 3, h: 0 },
+                { label: "1 WEEK", d: 7, h: 0 },
+              ].map((opt) => (
+                <button
+                  key={opt.label}
+                  type="button"
+                  onClick={() => setDuration(opt.d, opt.h)}
+                  className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-[10px] font-bold text-slate-600 dark:text-slate-300 hover:border-primary hover:text-primary transition-colors"
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="flex justify-end gap-3 pt-2">
+            <button type="button" onClick={onClose} className="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">Cancel</button>
+            <button type="submit" disabled={saving || !form.cabana_id} className="px-6 py-2.5 rounded-xl bg-primary text-white text-sm font-bold shadow hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center gap-2">
+              {saving ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle size={14} />}
+              {saving ? "Processing..." : "Confirm Check-In"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 // ─── Guest Profile View ───────────────────────────────────────────────────────
-function GuestProfile({ guest, bookings, onBack }) {
+function GuestProfile({ guest, bookings, onBack, onEdit, onCheckout, onDelete, checkingOut }) {
   const [profileTab, setProfileTab] = useState("history");
   const [bookingPage, setBookingPage] = useState(1);
   const bkPerPage = 4;
@@ -338,13 +611,19 @@ function GuestProfile({ guest, bookings, onBack }) {
             </div>
           </div>
           <div className="flex items-center gap-3 flex-shrink-0">
-            <button className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+            <button 
+              onClick={onEdit}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
+            >
               <Edit size={14} />
               Edit Profile
             </button>
-            <button className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-bold shadow hover:shadow-md hover:brightness-110 active:scale-[0.98] transition-all">
-              <Download size={14} />
-              Download History
+            <button 
+              onClick={onDelete}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-rose-200 dark:border-rose-900/30 text-sm font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all"
+            >
+              <Trash2 size={14} />
+              Delete Guest
             </button>
           </div>
         </div>
@@ -379,13 +658,35 @@ function GuestProfile({ guest, bookings, onBack }) {
             </div>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
-            <button className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 transition-all">
-              Add Service
-            </button>
-            <button className="px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold shadow hover:brightness-110 transition-all">
+            <button 
+              onClick={() => onCheckout(activeBooking)}
+              disabled={checkingOut}
+              className="px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold shadow hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center gap-2"
+            >
+              {checkingOut ? <Loader2 size={12} className="animate-spin" /> : <LogOut size={12} />}
               Quick Checkout
             </button>
           </div>
+        </div>
+      )}
+
+      {!activeBooking && (
+        <div className="bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-400">
+              <Hotel size={18} />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-slate-900 dark:text-white">Currently Out-of-House</p>
+              <p className="text-xs text-slate-400">No active bookings found for this guest.</p>
+            </div>
+          </div>
+          <button 
+            onClick={() => window.location.href='/bookings'}
+            className="px-4 py-2 rounded-xl border border-primary text-primary text-xs font-bold hover:bg-primary/5 transition-all"
+          >
+            Create New Booking
+          </button>
         </div>
       )}
 
@@ -656,10 +957,17 @@ function Guests() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [showRegister, setShowRegister] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
+  const [showCheckIn, setShowCheckIn] = useState(false);
+  const [allCabanas, setAllCabanas] = useState([]);
   const [saving, setSaving] = useState(false);
+  const [checkingOut, setCheckingOut] = useState(false);
   const [toast, setToast] = useState(null);
   const [selectedGuest, setSelectedGuest] = useState(null);
-  const [filterStatus, setFilterStatus] = useState("all"); // all | active | checked-out
+  const [guestToCheckIn, setGuestToCheckIn] = useState(null);
+  const [cabanasCount, setCabanasCount] = useState(4);
+  const [filterStatus, setFilterStatus] = useState("all"); 
+  const [confirmConfig, setConfirmConfig] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
 
   const showToastMsg = (msg, type = "success") => {
@@ -670,15 +978,19 @@ function Guests() {
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const [{ data: guestsData }, { data: bookingsData }] = await Promise.all([
+      const [{ data: guestsData }, { data: bookingsData }, { data: cabanasData }, { count: cCount }] = await Promise.all([
         supabase.from("guests").select("*").order("created_at", { ascending: false }),
         supabase
           .from("bookings")
           .select("*, cabanas(id, name, base_rate_hour, base_rate_day)")
           .order("start_time", { ascending: false }),
+        supabase.from("cabanas").select("*").eq("is_active", true),
+        supabase.from("cabanas").select("*", { count: 'exact', head: true }),
       ]);
       setGuests(guestsData || []);
       setBookings(bookingsData || []);
+      setAllCabanas(cabanasData || []);
+      if (cCount) setCabanasCount(cCount);
     } catch (err) {
       console.error("Error loading guests:", err);
       showToastMsg("Failed to load guest data.", "error");
@@ -695,9 +1007,12 @@ function Guests() {
   const guestStatusMap = useMemo(() => {
     const map = {};
     bookings.forEach((b) => {
+      // If they have an active CONFIRMED booking, they are In-House/Active
       if (b.status === "CONFIRMED") {
-        map[b.guest_id] = "Active";
-      } else if (!map[b.guest_id]) {
+        map[b.guest_id] = "Checked-in";
+      } 
+      // If it is checked out and no other confirmed booking exists yet for this guest
+      else if (b.status === "CHECKED_OUT" && !map[b.guest_id]) {
         map[b.guest_id] = "Checked-out";
       }
     });
@@ -722,11 +1037,11 @@ function Guests() {
 
     // Filter
     if (filterStatus === "active") {
-      result = result.filter((g) => guestStatusMap[g.id] === "Active");
+      result = result.filter((g) => guestStatusMap[g.id] === "Checked-in");
     } else if (filterStatus === "checked-out") {
-      result = result.filter(
-        (g) => guestStatusMap[g.id] === "Checked-out" || !guestStatusMap[g.id]
-      );
+      result = result.filter((g) => guestStatusMap[g.id] === "Checked-out");
+    } else if (filterStatus === "registered") {
+      result = result.filter((g) => !guestStatusMap[g.id]);
     }
 
     return result;
@@ -743,9 +1058,14 @@ function Guests() {
     const newThisMonth = guests.filter((g) => new Date(g.created_at) >= monthStart).length;
     const inHouse = Object.values(guestStatusMap).filter((s) => s === "Active").length;
     const activeCabanas = new Set(
-      bookings.filter((b) => b.status === "CONFIRMED").map((b) => b.cabana_id)
+      bookings.filter((b) => {
+        if (b.status !== "CONFIRMED") return false;
+        const start = new Date(b.start_time);
+        const end = new Date(b.end_time);
+        return now >= start && now <= end;
+      }).map((b) => b.cabana_id)
     ).size;
-    const occupancy = activeCabanas > 0 ? Math.round((activeCabanas / 4) * 100) : 0;
+    const occupancy = cabanasCount > 0 ? Math.round((activeCabanas / cabanasCount) * 100) : 0;
 
     // Average stay duration
     const checkedOut = bookings.filter((b) => b.status === "CHECKED_OUT");
@@ -760,11 +1080,31 @@ function Guests() {
     return { total, newThisMonth, inHouse, occupancy, avgStay };
   }, [guests, bookings, guestStatusMap]);
 
-  // Register guest
+  // Register/Edit/Delete
   const handleRegister = async (form) => {
     setSaving(true);
     try {
-      const { error } = await supabase.from("guests").insert([form]);
+      if (form.nic || form.mobile) {
+        let query = supabase.from("guests").select("id, nic, mobile");
+        if (form.nic && form.mobile) {
+          query = query.or(`nic.eq."${form.nic}",mobile.eq."${form.mobile}"`);
+        } else if (form.nic) {
+          query = query.eq("nic", form.nic);
+        } else {
+          query = query.eq("mobile", form.mobile);
+        }
+        
+        const { data: existing, error: qErr } = await query;
+        if (qErr) throw qErr;
+        
+        if (existing && existing.length > 0) {
+          const isNic = existing.some(e => e.nic === form.nic && form.nic !== "");
+          const isMobile = existing.some(e => e.mobile === form.mobile && form.mobile !== "");
+          throw new Error(`Guest with this ${isNic ? 'NIC' : ''}${isNic && isMobile ? ' and ' : ''}${!isNic && isMobile ? 'Mobile Number' : isMobile ? ' Mobile Number' : ''} already exists!`);
+        }
+      }
+
+      const { data: newGuest, error } = await supabase.from("guests").insert([form]).select().single();
       if (error) throw error;
 
       await supabase.from("activity_logs").insert([
@@ -774,6 +1114,7 @@ function Guests() {
           actor_role: profile?.role,
           action: "REGISTER_GUEST",
           entity_type: "GUEST",
+          entity_id: newGuest.id,
           metadata: { guest_name: form.full_name },
         },
       ]);
@@ -784,6 +1125,156 @@ function Guests() {
     } catch (err) {
       console.error("Register error:", err);
       showToastMsg(err.message || "Failed to register guest.", "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleEditGuest = async (form) => {
+    setSaving(true);
+    try {
+      const { error } = await supabase.from("guests").update(form).eq("id", selectedGuest.id);
+      if (error) throw error;
+
+      await supabase.from("activity_logs").insert([{
+        actor_id: profile?.id,
+        actor_name: profile?.full_name,
+        actor_role: profile?.role,
+        action: "UPDATE_GUEST",
+        entity_type: "GUEST",
+        entity_id: selectedGuest.id,
+        metadata: { guest_name: form.full_name, changes: "profile_update" },
+      }]);
+
+      showToastMsg("Profile updated successfully!");
+      setShowEdit(false);
+      await loadData();
+      // Update selected guest local state
+      setSelectedGuest({ ...selectedGuest, ...form });
+    } catch (err) {
+      console.error("Edit error:", err);
+      showToastMsg(err.message || "Failed to update profile.", "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteGuest = () => {
+    setConfirmConfig({
+      open: true,
+      title: "Delete Guest Profile?",
+      message: `Are you sure you want to delete ${selectedGuest.full_name}? All associated bookings and records will be permanently removed.`,
+      variant: "danger",
+      confirmText: "Delete Permanently",
+      onCancel: () => setConfirmConfig(null),
+      onConfirm: async () => {
+        setConfirmConfig(null);
+        setSaving(true);
+        try {
+          // Delete associated bookings first to prevent foreign key constraint violations
+          const { error: bookingsError } = await supabase.from("bookings").delete().eq("guest_id", selectedGuest.id);
+          if (bookingsError) throw bookingsError;
+
+          const { error } = await supabase.from("guests").delete().eq("id", selectedGuest.id);
+          if (error) throw error;
+
+          await supabase.from("activity_logs").insert([{
+            actor_id: profile?.id,
+            actor_name: profile?.full_name,
+            actor_role: profile?.role,
+            action: "DELETE_GUEST",
+            entity_type: "GUEST",
+            entity_id: selectedGuest.id,
+            metadata: { guest_name: selectedGuest.full_name },
+          }]);
+
+          showToastMsg("Guest record deleted.");
+          setSelectedGuest(null);
+          await loadData();
+        } catch (err) {
+          console.error("Delete error:", err);
+          showToastMsg("Failed to delete guest. They might have existing bookings.", "error");
+        } finally {
+          setSaving(false);
+        }
+      }
+    });
+  };
+
+  const handleCheckout = (booking) => {
+    setConfirmConfig({
+      open: true,
+      title: "Quick Checkout",
+      message: `Are you sure you want to check out ${selectedGuest.full_name}? This will mark their current booking as completed.`,
+      variant: "info",
+      confirmText: "Check Out",
+      onCancel: () => setConfirmConfig(null),
+      onConfirm: async () => {
+        setConfirmConfig(null);
+        setCheckingOut(true);
+        try {
+          const now = new Date().toISOString();
+          const { error } = await supabase
+            .from("bookings")
+            .update({ status: "CHECKED_OUT", end_time: now })
+            .eq("id", booking.id);
+
+          if (error) throw error;
+
+          await supabase.from("activity_logs").insert([{
+            actor_id: profile?.id,
+            actor_name: profile?.full_name,
+            actor_role: profile?.role,
+            action: "CHECKOUT_GUEST",
+            entity_type: "BOOKING",
+            entity_id: booking.id,
+            metadata: { guest_name: selectedGuest.full_name, checkout_time: now },
+          }]);
+
+          showToastMsg("Guest checked out successfully!");
+          await loadData();
+        } catch (err) {
+          console.error("Checkout error:", err);
+          showToastMsg("Failed to checkout guest.", "error");
+        } finally {
+          setCheckingOut(false);
+        }
+      }
+    });
+  };
+
+  const handleCheckIn = async (form) => {
+    setSaving(true);
+    try {
+      const newBooking = {
+        guest_id: guestToCheckIn.id,
+        cabana_id: form.cabana_id,
+        rate_type: form.rate_type,
+        start_time: form.start_time,
+        end_time: form.end_time,
+        status: "CONFIRMED", // Directly confirmed = Checked-in
+      };
+
+      const { data: bookingData, error } = await supabase.from("bookings").insert([newBooking]).select().single();
+      if (error) throw error;
+
+      await supabase.from("activity_logs").insert([{
+        actor_id: profile?.id,
+        actor_name: profile?.full_name,
+        actor_role: profile?.role,
+        action: "CHECKIN_GUEST",
+        entity_type: "BOOKING",
+        entity_id: bookingData.id,
+        metadata: { guest_name: guestToCheckIn.full_name, cabana_id: form.cabana_id },
+      }]);
+
+      showToastMsg(`${guestToCheckIn.full_name} checked in successfully!`);
+      setShowCheckIn(false);
+      setGuestToCheckIn(null);
+      await loadData();
+    } catch (err) {
+      console.error("Check-in error:", err);
+      showToastMsg(err.message || "Failed to check-in guest.", "error");
     } finally {
       setSaving(false);
     }
@@ -831,15 +1322,29 @@ function Guests() {
     return pages;
   };
 
-  // If a guest is selected, show profile view
   if (selectedGuest) {
     return (
       <>
         <Toast toast={toast} />
+        <EditModal 
+          open={showEdit} 
+          guest={selectedGuest} 
+          onClose={() => setShowEdit(false)} 
+          onSave={handleEditGuest} 
+          saving={saving} 
+        />
+        <ConfirmModal 
+          {...confirmConfig} 
+          open={!!confirmConfig} 
+        />
         <GuestProfile
           guest={selectedGuest}
           bookings={bookings}
           onBack={() => setSelectedGuest(null)}
+          onEdit={() => setShowEdit(true)}
+          onDelete={handleDeleteGuest}
+          onCheckout={handleCheckout}
+          checkingOut={checkingOut}
         />
       </>
     );
@@ -853,6 +1358,19 @@ function Guests() {
         onClose={() => setShowRegister(false)}
         onSave={handleRegister}
         saving={saving}
+      />
+      <CheckInModal
+        open={showCheckIn}
+        guest={guestToCheckIn}
+        cabanas={allCabanas}
+        bookings={bookings}
+        onClose={() => { setShowCheckIn(false); setGuestToCheckIn(null); }}
+        onSave={handleCheckIn}
+        saving={saving}
+      />
+      <ConfirmModal 
+        {...confirmConfig} 
+        open={!!confirmConfig} 
       />
 
       {/* Page Header */}
@@ -932,7 +1450,8 @@ function Guests() {
                 <div className="absolute top-full left-0 mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg p-2 z-30 min-w-[160px]">
                   {[
                     { id: "all", label: "All Guests" },
-                    { id: "active", label: "Active (In-House)" },
+                    { id: "registered", label: "Registered Only" },
+                    { id: "active", label: "Checked-in (In-House)" },
                     { id: "checked-out", label: "Checked Out" },
                   ].map((opt) => (
                     <button
@@ -1025,8 +1544,21 @@ function Guests() {
               )}
               {!loading &&
                 paginatedGuests.map((guest) => {
-                  const status = guestStatusMap[guest.id] || "Checked-out";
-                  const isActive = status === "Active";
+                  const status = guestStatusMap[guest.id]; // undefined | Checked-in | Checked-out
+                  const isActive = status === "Checked-in";
+                  
+                  // Status Badge Styles
+                  let badgeClass = "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"; // Registered (Default)
+                  let statusText = "Registered";
+
+                  if (status === "Checked-in") {
+                    badgeClass = "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400";
+                    statusText = "Checked-in";
+                  } else if (status === "Checked-out") {
+                    badgeClass = "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400";
+                    statusText = "Checked-out";
+                  }
+
                   return (
                     <tr
                       key={guest.id}
@@ -1058,21 +1590,21 @@ function Guests() {
                         {guest.mobile || "—"}
                       </td>
                       <td className="px-5 py-4">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                            isActive
-                              ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400"
-                              : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
-                          }`}
-                        >
-                          {status}
+                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold ${badgeClass}`}>
+                          {statusText}
                         </span>
                       </td>
                       <td className="px-5 py-4 text-right">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            setSelectedGuest(guest);
+                            if (isActive) {
+                              // If active, we go to profile to checkout (or we could trigger checkout here)
+                              setSelectedGuest(guest);
+                            } else {
+                              setGuestToCheckIn(guest);
+                              setShowCheckIn(true);
+                            }
                           }}
                           className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
                             isActive

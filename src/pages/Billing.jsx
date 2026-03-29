@@ -299,7 +299,7 @@ function InvoicePreview({ booking, onCheckout, checkingOut }) {
           <FileText size={18} className="text-primary" />
           <span className="text-sm font-bold text-slate-900 dark:text-white">Invoice Preview</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 print:hidden">
           <button
             onClick={() => window.print()}
             className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
@@ -318,139 +318,140 @@ function InvoicePreview({ booking, onCheckout, checkingOut }) {
       </div>
 
       {/* Invoice body */}
-      <div className="p-5 flex-1 overflow-y-auto space-y-5">
-        {/* Resort header */}
-        <div className="flex items-start justify-between">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Receipt size={16} className="text-primary" />
-              </div>
-              <span className="text-base font-extrabold tracking-tight text-primary uppercase">
-                {RESORT_NAME}
-              </span>
+      <div id="printable-bill" className="flex-1 overflow-y-auto bg-white text-slate-800 relative w-full text-[13px] leading-snug">
+        <style>
+          {`
+            @page { margin: 0; }
+            @media print {
+              html, body {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+              }
+              body * { visibility: hidden; }
+              #printable-bill, #printable-bill * { visibility: visible; }
+              #printable-bill {
+                position: fixed;
+                left: 0;
+                top: 0;
+                width: 100vw;
+                height: 100vh;
+                margin: 0 !important;
+                padding: 20px !important; /* internal padding inside the paper */
+                box-sizing: border-box;
+                background: white !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                overflow: visible !important;
+              }
+            }
+          `}
+        </style>
+
+        {/* Header Bar matching PDF */}
+        <div className="bg-[#137fec] text-white pt-6 pb-2 px-8">
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-[22px] font-bold tracking-wide">{RESORT_NAME}</h1>
             </div>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-5">
-              {RESORT_ADDRESS}
-              <br />
-              {RESORT_PHONE}
-              <br />
-              {RESORT_EMAIL}
-            </p>
+            <div className="text-right">
+              <h2 className="text-[28px] font-bold tracking-wider relative -top-1">INVOICE</h2>
+            </div>
           </div>
-          <div className="text-right">
-            <p className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">INVOICE</p>
-            <p className="text-xs font-semibold text-primary mt-1">{invoiceNo}</p>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-              Issued: {fmtShortDate(new Date())}
+          <div className="flex justify-between items-start mt-1">
+            <p className="text-[11px] font-normal tracking-wide">
+              {RESORT_ADDRESS}  |  {RESORT_PHONE}  |  {RESORT_EMAIL}
             </p>
+            <div className="text-right text-[11px] font-normal tracking-wide space-y-1 mt-1">
+              <p>{invoiceNo}</p>
+              <p>Issued: {fmtShortDate(new Date())}</p>
+            </div>
           </div>
+          <div className="border-b border-white opacity-40 mt-3"></div>
         </div>
 
-        {/* Guest + Booking grid */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3">
-            <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-2">
-              Guest Information
-            </p>
-            <p className="text-sm font-bold text-slate-900 dark:text-white">
-              {guest?.full_name || "Unknown Guest"}
-            </p>
-            {guest?.nic && (
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                NIC: {guest.nic}
+        <div className="p-8 space-y-6">
+          {/* Guest + Booking grid */}
+          <div className="grid grid-cols-2 gap-8">
+            <div className="bg-slate-50 rounded-md p-4 space-y-1">
+              <p className="text-[9px] font-bold text-slate-500 mb-2">GUEST INFORMATION</p>
+              <p className="text-[14px] font-normal text-slate-800">{guest?.full_name || "—"}</p>
+              {guest?.nic && <p className="text-[11px] text-slate-500">NIC: {guest.nic}</p>}
+              {guest?.country && <p className="text-[11px] text-slate-500">{guest.country}</p>}
+              {guest?.mobile && <p className="text-[11px] text-slate-500">{guest.mobile}</p>}
+            </div>
+            <div className="bg-slate-50 rounded-md p-4 space-y-1">
+              <p className="text-[9px] font-bold text-slate-500 mb-2">BOOKING DETAILS</p>
+              <p className="text-[14px] font-normal text-slate-800">
+                {cabana?.name || `Cabana #${booking.cabana_id}`}
               </p>
-            )}
-            {guest?.country && (
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">{guest.country}</p>
-            )}
+              <p className="text-[11px] text-slate-500 mt-1">Check-in: {fmtDate(booking.start_time)}</p>
+              <p className="text-[11px] text-slate-500">Check-out: {fmtDate(booking.end_time)}</p>
+            </div>
           </div>
-          <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3">
-            <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-2">
-              Booking Details
-            </p>
-            <p className="text-sm font-bold text-slate-900 dark:text-white">
-              {cabana?.name || `Cabana #${booking.cabana_id}`}
-            </p>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-              Check-in: {fmtDate(booking.start_time)}
-            </p>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">
-              Check-out: {fmtDate(booking.end_time)}
-            </p>
-          </div>
-        </div>
 
-        {/* Line items table */}
-        <div className="overflow-hidden rounded-xl border border-slate-100 dark:border-slate-800">
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-100 dark:border-slate-800">
-                <th className="px-3 py-2.5 text-left font-bold text-slate-700 dark:text-slate-300">
-                  Description
-                </th>
-                <th className="px-2 py-2.5 text-center font-bold text-slate-700 dark:text-slate-300">
-                  Unit
-                </th>
-                <th className="px-2 py-2.5 text-center font-bold text-slate-700 dark:text-slate-300">
-                  Qty
-                </th>
-                <th className="px-2 py-2.5 text-right font-bold text-slate-700 dark:text-slate-300">
-                  Price
-                </th>
-                <th className="px-3 py-2.5 text-right font-bold text-slate-700 dark:text-slate-300">
-                  Total
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {items.map((item, i) => (
-                <tr key={i} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
-                  <td className="px-3 py-2.5 text-slate-700 dark:text-slate-300 font-medium">
-                    {item.description}
-                  </td>
-                  <td className="px-2 py-2.5 text-center text-slate-500 dark:text-slate-400">
-                    {item.unit}
-                  </td>
-                  <td className="px-2 py-2.5 text-center text-slate-600 dark:text-slate-300 font-semibold">
-                    {item.qty}
-                  </td>
-                  <td className="px-2 py-2.5 text-right text-slate-600 dark:text-slate-300">
-                    ${item.price.toFixed(2)}
-                  </td>
-                  <td className="px-3 py-2.5 text-right font-semibold text-slate-900 dark:text-white">
-                    ${item.total.toFixed(2)}
-                  </td>
+          {/* Line items table */}
+          <div>
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-[#137fec] text-white">
+                  <th className="py-2.5 px-4 font-bold text-[11px]">Description</th>
+                  <th className="py-2.5 px-2 font-bold text-[11px] text-left">Unit</th>
+                  <th className="py-2.5 px-2 font-bold text-[11px] text-center">Qty</th>
+                  <th className="py-2.5 px-2 font-bold text-[11px] text-right">Price</th>
+                  <th className="py-2.5 px-4 font-bold text-[11px] text-right">Total</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-white">
+                {items.map((item, i) => (
+                  <tr key={i} className={i % 2 === 0 ? "bg-slate-50" : "bg-white"}>
+                    <td className="py-2.5 px-4 text-slate-800 text-[12px]">{item.description}</td>
+                    <td className="py-2.5 px-2 text-slate-500 text-[12px] text-left">{item.unit}</td>
+                    <td className="py-2.5 px-2 text-center text-slate-800 text-[12px]">
+                      {item.qty}
+                    </td>
+                    <td className="py-2.5 px-2 text-right text-slate-800 text-[12px]">
+                      ${item.price.toFixed(2)}
+                    </td>
+                    <td className="py-2.5 px-4 text-right text-slate-800 text-[12px]">
+                      ${item.total.toFixed(2)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-        {/* Totals */}
-        <div className="space-y-1.5 border-t border-slate-100 dark:border-slate-800 pt-3">
-          <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400">
-            <span>Subtotal</span>
-            <span className="font-semibold text-slate-700 dark:text-slate-300">${subtotal.toFixed(2)}</span>
+          {/* Totals */}
+          <div className="flex justify-end pt-2">
+            <div className="w-72 border-t border-slate-200 pt-3 space-y-2">
+              <div className="flex justify-between text-[12px] text-slate-500">
+                <span>Subtotal</span>
+                <span className="text-slate-800">${subtotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-[12px] text-slate-500 mb-2">
+                <span>Service Tax ({(SERVICE_TAX_RATE * 100).toFixed(0)}%)</span>
+                <span className="text-slate-800">${tax.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between items-center bg-[#137fec] text-white p-3 rounded-md">
+                <span className="text-[13px] font-bold">Grand Total</span>
+                <span className="text-[14px] font-bold">${grandTotal.toFixed(2)}</span>
+              </div>
+            </div>
           </div>
-          <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400">
-            <span>Service Tax ({(SERVICE_TAX_RATE * 100).toFixed(0)}%)</span>
-            <span className="font-semibold text-slate-700 dark:text-slate-300">${tax.toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between items-center pt-2 border-t border-slate-200 dark:border-slate-700">
-            <span className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">Grand Total</span>
-            <span className="text-2xl font-black text-primary dark:text-neon-blue drop-shadow-[0_0_8px_rgba(43,134,255,0.4)]">${grandTotal.toFixed(2)}</span>
+
+          {/* Footer note */}
+          <div className="pt-8">
+            <p className="text-center text-[10px] italic text-slate-500">
+              Thank you for staying at Azure Bay Resort. We hope to see you again soon.
+            </p>
           </div>
         </div>
-
-        {/* Footer note */}
-        <p className="text-center text-[10px] italic text-slate-400 dark:text-slate-500">
-          Thank you for staying at Azure Bay Resort. We hope to see you again soon.
-        </p>
       </div>
 
       {/* Actions */}
-      <div className="px-5 py-4 border-t border-slate-100 dark:border-slate-800 flex gap-3 bg-slate-50/50 dark:bg-slate-900/50">
+      <div className="px-5 py-4 border-t border-slate-100 dark:border-slate-800 flex gap-3 bg-slate-50/50 dark:bg-slate-900/50 print:hidden">
         <button
           onClick={() => downloadInvoicePDF(booking)}
           className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all uppercase tracking-wider"
