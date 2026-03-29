@@ -19,6 +19,7 @@ import {
   BarChart3,
   Filter,
 } from "lucide-react";
+import ConfirmModal from "../components/ConfirmModal.jsx";
 
 // ─── Constants & Helpers ──────────────────────────────────────────────────────
 const DAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
@@ -265,6 +266,7 @@ function Bookings() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState(null);
+  const [confirmConfig, setConfirmConfig] = useState(null);
 
   // Calendar state
   const now = new Date();
@@ -372,27 +374,37 @@ function Bookings() {
   };
 
   // Delete booking
-  const handleDeleteBooking = async (id) => {
-    if (!window.confirm("Are you sure you want to cancel this booking?")) return;
-    try {
-      const { error } = await supabase.from("bookings").delete().eq("id", id);
-      if (error) throw error;
+  const handleDeleteBooking = (id) => {
+    setConfirmConfig({
+      open: true,
+      title: "Cancel Booking",
+      message: "Are you sure you want to cancel this booking? This action cannot be undone.",
+      variant: "danger",
+      confirmText: "Cancel Booking",
+      onCancel: () => setConfirmConfig(null),
+      onConfirm: async () => {
+        setConfirmConfig(null);
+        try {
+          const { error } = await supabase.from("bookings").delete().eq("id", id);
+          if (error) throw error;
 
-      await supabase.from("activity_logs").insert([{
-        actor_id: profile?.id,
-        actor_name: profile?.full_name,
-        actor_role: profile?.role,
-        action: "DELETE_BOOKING",
-        entity_type: "BOOKING",
-        entity_id: id,
-      }]);
+          await supabase.from("activity_logs").insert([{
+            actor_id: profile?.id,
+            actor_name: profile?.full_name,
+            actor_role: profile?.role,
+            action: "DELETE_BOOKING",
+            entity_type: "BOOKING",
+            entity_id: id,
+          }]);
 
-      showToastMsg("Booking cancelled.");
-      await loadData();
-    } catch (err) {
-      console.error("Error deleting booking:", err);
-      showToastMsg("Failed to delete booking.", "error");
-    }
+          showToastMsg("Booking cancelled.");
+          await loadData();
+        } catch (err) {
+          console.error("Error deleting booking:", err);
+          showToastMsg("Failed to delete booking.", "error");
+        }
+      }
+    });
   };
 
   // Calendar navigation
@@ -459,6 +471,10 @@ function Bookings() {
         guests={guests}
         cabanas={cabanas}
         selectedDate={selectedDate}
+      />
+      <ConfirmModal 
+        {...confirmConfig} 
+        open={!!confirmConfig} 
       />
 
       {/* Page header */}

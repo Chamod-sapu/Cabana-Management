@@ -50,19 +50,21 @@ function CabanaCard({ cabana, editData, onChange }) {
           : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm hover:shadow-md dark:hover:shadow-neon"
       }`}
     >
-      {/* Header */}
-      <div className="flex items-center justify-between mb-5">
-        <h3
-          className={`text-base font-extrabold tracking-tight ${
-            isMaintenance
-              ? "text-primary"
-              : "text-slate-900 dark:text-white"
-          }`}
-        >
-          {cabana.name}
-        </h3>
+      {/* Header & Name Edit */}
+      <div className="flex items-center justify-between mb-5 gap-3">
+        <div className="flex-1">
+          <input
+            type="text"
+            value={editData.name}
+            onChange={(e) => onChange(cabana.id, "name", e.target.value)}
+            className={`w-full bg-transparent border-none p-0 text-base font-extrabold tracking-tight focus:ring-0 ${
+              isMaintenance ? "text-primary" : "text-slate-900 dark:text-white"
+            }`}
+            placeholder="Cabana Name"
+          />
+        </div>
         <span
-          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap ${
             isMaintenance
               ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
               : "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400"
@@ -74,67 +76,80 @@ function CabanaCard({ cabana, editData, onChange }) {
 
       {/* Rate inputs */}
       <div className="space-y-4">
-        <div>
-          <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1.5">
-            Hourly Rate
-          </label>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-400">
-              $
-            </span>
-            <input
-              type="number"
-              min="0"
-              step="1"
-              value={editData.base_rate_hour}
-              onChange={(e) =>
-                onChange(cabana.id, "base_rate_hour", parseFloat(e.target.value) || 0)
-              }
-              className={`w-full pl-7 pr-3 py-2.5 rounded-xl text-sm font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-primary/40 ${
-                isMaintenance
-                  ? "bg-primary/5 border border-primary/20 text-slate-700 dark:text-slate-200 dark:bg-primary/10"
-                  : "bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
-              }`}
-            />
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+              Hourly
+            </label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-400">
+                $
+              </span>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={editData.base_rate_hour}
+                onChange={(e) =>
+                  onChange(cabana.id, "base_rate_hour", parseFloat(e.target.value) || 0)
+                }
+                className={`w-full pl-7 pr-3 py-2 rounded-xl text-sm font-bold transition-all focus:outline-none focus:ring-2 focus:ring-primary/40 ${
+                  isMaintenance
+                    ? "bg-primary/5 border border-primary/20 text-slate-700 dark:text-slate-200 dark:bg-primary/10"
+                    : "bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
+                }`}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+              Daily
+            </label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-400">
+                $
+              </span>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={editData.base_rate_day}
+                onChange={(e) =>
+                  onChange(cabana.id, "base_rate_day", parseFloat(e.target.value) || 0)
+                }
+                className={`w-full pl-7 pr-3 py-2 rounded-xl text-sm font-bold transition-all focus:outline-none focus:ring-2 focus:ring-primary/40 ${
+                  isMaintenance
+                    ? "bg-primary/5 border border-primary/20 text-slate-700 dark:text-slate-200 dark:bg-primary/10"
+                    : "bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
+                }`}
+              />
+            </div>
           </div>
         </div>
 
+        {/* System Fixed Component display */}
         <div>
-          <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1.5">
-            Daily Rate
+          <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+            System Charge (10%)
           </label>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-400">
-              $
-            </span>
-            <input
-              type="number"
-              min="0"
-              step="1"
-              value={editData.base_rate_day}
-              onChange={(e) =>
-                onChange(cabana.id, "base_rate_day", parseFloat(e.target.value) || 0)
-              }
-              className={`w-full pl-7 pr-3 py-2.5 rounded-xl text-sm font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-primary/40 ${
-                isMaintenance
-                  ? "bg-primary/5 border border-primary/20 text-slate-700 dark:text-slate-200 dark:bg-primary/10"
-                  : "bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
-              }`}
-            />
+          <div className="px-3 py-2 rounded-xl border border-dashed border-slate-200 dark:border-slate-700 flex justify-between items-center text-xs font-bold text-slate-500">
+            <span>Service Tax</span>
+            <span className="text-emerald-500">+${(editData.base_rate_day * 0.1).toFixed(2)}/day</span>
           </div>
         </div>
       </div>
 
       {/* Operational status toggle */}
       <div className="flex items-center justify-between mt-5 pt-4 border-t border-slate-100 dark:border-slate-800">
-        <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
+        <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
           {isMaintenance ? (
             <>
-              Maintenance{" "}
+              Repairing{" "}
               <Wrench size={12} className="text-amber-500" />
             </>
           ) : (
-            "Operational Status"
+            "Operational"
           )}
         </span>
         <Toggle
@@ -210,7 +225,7 @@ function Cabanas() {
             .order("id", { ascending: true }),
           supabase
             .from("bookings")
-            .select("cabana_id, status")
+            .select("cabana_id, status, start_time, end_time")
             .eq("status", "CONFIRMED"),
         ]);
 
@@ -221,6 +236,7 @@ function Cabanas() {
       const map = {};
       (cabanasData || []).forEach((c) => {
         map[c.id] = {
+          name: c.name,
           base_rate_hour: c.base_rate_hour,
           base_rate_day: c.base_rate_day,
           is_active: c.is_active,
@@ -271,6 +287,7 @@ function Cabanas() {
     const map = {};
     cabanas.forEach((c) => {
       map[c.id] = {
+        name: c.name,
         base_rate_hour: c.base_rate_hour,
         base_rate_day: c.base_rate_day,
         is_active: c.is_active,
@@ -290,6 +307,7 @@ function Cabanas() {
         supabase
           .from("cabanas")
           .update({
+            name: data.name,
             base_rate_hour: data.base_rate_hour,
             base_rate_day: data.base_rate_day,
             is_active: data.is_active,
@@ -335,18 +353,36 @@ function Cabanas() {
         ? entries.reduce((s, e) => s + e.base_rate_day, 0) / entries.length
         : 0;
 
-    // Occupancy: how many active cabanas currently have a CONFIRMED booking
+    // Occupancy: how many active cabanas currently have a CONFIRMED booking spanning right now
+    const now = new Date();
     const activeCabanaIds = cabanas
       .filter((c) => editMap[c.id]?.is_active)
       .map((c) => c.id);
-    const occupiedIds = new Set(bookings.map((b) => b.cabana_id));
+      
+    const occupiedIds = new Set(
+      bookings
+        .filter((b) => {
+          const start = new Date(b.start_time);
+          const end = new Date(b.end_time);
+          return now >= start && now <= end;
+        })
+        .map((b) => b.cabana_id)
+    );
+    
     const occupied = activeCabanaIds.filter((id) => occupiedIds.has(id)).length;
+    // Overriding the previous "available" calculation to be truly unoccupied active cabanas
+    const realAvailable = activeCabanaIds.filter((id) => !occupiedIds.has(id)).length;
     const occupancy =
       activeCabanaIds.length > 0
         ? Math.round((occupied / activeCabanaIds.length) * 100)
         : 0;
 
-    return { available, maintenance, avgDay, occupancy };
+    return { 
+      available: realAvailable, 
+      maintenance, 
+      avgDay: avgDay + (avgDay * 0.1), // Adjusted for service charge for summary
+      occupancy 
+    };
   }, [editMap, cabanas, bookings]);
 
   if (loading) {
@@ -438,6 +474,7 @@ function Cabanas() {
                 key={cabana.id}
                 cabana={cabana}
                 editData={editMap[cabana.id] || {
+                  name: cabana.name,
                   base_rate_hour: cabana.base_rate_hour,
                   base_rate_day: cabana.base_rate_day,
                   is_active: cabana.is_active,
@@ -504,13 +541,13 @@ function Cabanas() {
           />
           <SummaryCard
             icon={DollarSign}
-            label="Avg. Rate"
+            label="Avg. Revenue Flow"
             value={`$${Math.round(summary.avgDay)}/day`}
             color="blue"
           />
           <SummaryCard
             icon={BarChart3}
-            label="Occupancy"
+            label="Occupancy Rate"
             value={`${summary.occupancy}%`}
             color="violet"
           />
